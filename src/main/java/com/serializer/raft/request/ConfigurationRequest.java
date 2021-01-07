@@ -24,7 +24,7 @@ public class ConfigurationRequest extends AbstractRaftRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), member);
+        return Objects.hash(getClass(), member, ranId);
     }
 
     @Override
@@ -40,5 +40,11 @@ public class ConfigurationRequest extends AbstractRaftRequest {
         return toStringHelper(this)
                 .add("member", member)
                 .toString();
+    }
+
+    @Override
+    public void random() {
+        super.random();
+        member.random();
     }
 }

@@ -73,7 +73,7 @@ public class ConfigurationResponse extends AbstractRaftResponse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), status, index, term, members);
+        return Objects.hash(getClass(), status, index, term, members, ranId);
     }
 
     @Override
@@ -104,6 +104,14 @@ public class ConfigurationResponse extends AbstractRaftResponse {
                     .add("status", status)
                     .add("error", error)
                     .toString();
+        }
+    }
+
+    @Override
+    public void random() {
+        super.random();
+        for (RaftMember member : members) {
+            member.random();
         }
     }
 }

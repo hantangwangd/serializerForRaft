@@ -1,6 +1,7 @@
 package com.serializer.raft.log;
 
 import java.io.Serializable;
+import java.util.Random;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
@@ -10,6 +11,8 @@ public abstract class RaftLogEntry implements Serializable {
 	 */
 	private static final long serialVersionUID = 1231231232L;
 	protected final long term;
+    transient Random ran = new Random();
+    long ranId = ran.nextInt(10000);
 
     public RaftLogEntry(long term) {
         this.term = term;
@@ -29,5 +32,9 @@ public abstract class RaftLogEntry implements Serializable {
         return toStringHelper(this)
                 .add("term", term)
                 .toString();
+    }
+
+    public void random() {
+        ranId = ran.nextInt(10000);
     }
 }

@@ -16,7 +16,7 @@ public class CommandEntry extends OperationEntry {
     
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), term, timestamp, session, sequence, operation);
+        return Objects.hash(getClass(), term, timestamp, session, sequence, operation, ranId);
     }
 
     @Override

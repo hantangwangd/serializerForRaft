@@ -1,8 +1,9 @@
 package com.serializer.utils;
 
 import java.lang.reflect.Constructor;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.Maps;
 import sun.reflect.*;
 
 public class ClassInstanceEnhancer {
@@ -10,8 +11,8 @@ public class ClassInstanceEnhancer {
 	@SuppressWarnings("restriction")
 	private final ReflectionFactory REFLECTION_FACTORY = ReflectionFactory.getReflectionFactory();
 
-	private final ConcurrentHashMap<Class<?>, Constructor<?>> _constructors = 
-			new ConcurrentHashMap<Class<?>, Constructor<?>>();
+	private final ConcurrentMap<Class<?>, Constructor<?>> _constructors =
+			Maps.newConcurrentMap();
 
 	public <T> T newInstance(Class<T> type) {
 		try {
@@ -36,13 +37,7 @@ public class ClassInstanceEnhancer {
 
 	@SuppressWarnings("unchecked")
 	private <T> T newInstanceFromReflectionFactory(Class<T> type) {
-		Constructor<?> constructor = _constructors.get(type);
-		if (constructor == null) {
-			synchronized (_constructors) {
-				constructor = newConstructorForSerialization(type);
-				_constructors.put(type, constructor);
-			}
-		}
+		Constructor<?> constructor = _constructors.computeIfAbsent(type, k -> newConstructorForSerialization(k));
 		return (T) newInstanceFrom(constructor);
 	}
 

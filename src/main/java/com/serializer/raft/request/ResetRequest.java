@@ -23,7 +23,7 @@ public class ResetRequest extends SessionRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), session, index);
+        return Objects.hash(getClass(), session, index, ranId);
     }
 
     @Override

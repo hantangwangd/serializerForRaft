@@ -43,7 +43,7 @@ public class OpenSessionResponse extends AbstractRaftResponse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), error, status, session, timeout);
+        return Objects.hash(getClass(), error, status, session, timeout, ranId);
     }
 
     @Override

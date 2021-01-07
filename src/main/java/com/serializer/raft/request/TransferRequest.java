@@ -25,7 +25,7 @@ public class TransferRequest extends AbstractRaftRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), member);
+        return Objects.hash(getClass(), member, ranId);
     }
 
     @Override

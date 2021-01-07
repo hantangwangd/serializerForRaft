@@ -53,7 +53,7 @@ public class CloseSessionEntry extends SessionEntry {
     
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), term, timestamp, session, expired, delete);
+        return Objects.hash(getClass(), term, timestamp, session, expired, delete, ranId);
     }
 
     @Override

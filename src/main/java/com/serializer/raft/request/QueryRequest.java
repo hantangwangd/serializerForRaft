@@ -26,7 +26,7 @@ public class QueryRequest extends OperationRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), session, sequence, operation, index);
+        return Objects.hash(getClass(), session, sequence, operation, index, ranId);
     }
 
     @Override

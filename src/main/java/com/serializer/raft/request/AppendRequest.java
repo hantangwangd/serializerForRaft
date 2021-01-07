@@ -87,8 +87,16 @@ public class AppendRequest extends AbstractRaftRequest {
     }
 
     @Override
+    public void random() {
+        super.random();
+        for (RaftLogEntry entry : entries) {
+            entry.random();
+        }
+    }
+
+    @Override
     public int hashCode() {
-        return Objects.hash(getClass(), term, leader, prevLogIndex, prevLogTerm, entries, commitIndex);
+        return Objects.hash(getClass(), term, leader, prevLogIndex, prevLogTerm, entries, commitIndex, ranId);
     }
 
     @Override

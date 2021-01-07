@@ -48,7 +48,7 @@ public class PublishRequest extends SessionRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), session, eventIndex, previousIndex, events);
+        return Objects.hash(getClass(), session, eventIndex, previousIndex, events, ranId);
     }
 
     @Override

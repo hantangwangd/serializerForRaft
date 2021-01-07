@@ -55,7 +55,7 @@ public class AppendResponse extends AbstractRaftResponse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), status, term, succeeded, lastLogIndex);
+        return Objects.hash(getClass(), status, term, succeeded, lastLogIndex, ranId);
     }
 
     @Override

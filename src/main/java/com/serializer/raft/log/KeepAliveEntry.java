@@ -60,7 +60,7 @@ public class KeepAliveEntry extends TimestampedEntry {
     
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), term, timestamp, eventIndexes);
+        return Objects.hash(getClass(), term, timestamp, eventIndexes, ranId);
     }
 
     @Override

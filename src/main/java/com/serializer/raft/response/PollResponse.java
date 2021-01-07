@@ -43,7 +43,7 @@ public class PollResponse extends AbstractRaftResponse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), status, term, accepted);
+        return Objects.hash(getClass(), status, term, accepted, ranId);
     }
 
     @Override

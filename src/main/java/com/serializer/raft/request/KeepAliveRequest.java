@@ -48,7 +48,7 @@ public class KeepAliveRequest extends AbstractRaftRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), sessionIds, commandSequences, eventIndexes);
+        return Objects.hash(getClass(), sessionIds, commandSequences, eventIndexes, ranId);
     }
 
     @Override

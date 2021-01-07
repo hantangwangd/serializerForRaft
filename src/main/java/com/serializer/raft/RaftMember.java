@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Random;
 
 import com.google.common.hash.Hashing;
 
@@ -72,6 +73,9 @@ public class RaftMember implements Serializable {
 	private final int hash;
     private Type type;
     private long updated;
+
+	transient Random ran = new Random();
+	long ranId = ran.nextInt(10000);
     
     public RaftMember(MemberId id, Type type, long updated) {
         this.id = checkNotNull(id, "id cannot be null");
@@ -108,7 +112,7 @@ public class RaftMember implements Serializable {
 	
 	@Override
     public int hashCode() {
-        return Objects.hash(getClass(), id);
+        return Objects.hash(getClass(), id, ranId);
     }
 
     @Override
@@ -124,5 +128,9 @@ public class RaftMember implements Serializable {
                 .add("updated", updated)
                 .toString();
     }
+
+	public void random() {
+		ranId = ran.nextInt(10000);
+	}
 	
 }

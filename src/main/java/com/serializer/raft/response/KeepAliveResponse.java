@@ -60,7 +60,7 @@ public class KeepAliveResponse extends AbstractRaftResponse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), status, leader, members);
+        return Objects.hash(getClass(), status, leader, members, ranId);
     }
 
     @Override

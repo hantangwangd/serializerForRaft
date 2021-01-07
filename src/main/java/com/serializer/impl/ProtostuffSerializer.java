@@ -15,7 +15,6 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.google.common.collect.Maps;
 import com.serializer.MySerializer;
 import com.serializer.utils.ClassInstanceEnhancer;
 
@@ -23,6 +22,8 @@ import io.protostuff.LinkedBuffer;
 import io.protostuff.ProtostuffIOUtil;
 import io.protostuff.Schema;
 import io.protostuff.runtime.RuntimeSchema;
+import org.objenesis.Objenesis;
+import org.objenesis.ObjenesisStd;
 
 public class ProtostuffSerializer implements MySerializer {
     private static final Set<Class<?>> WRAPPER_SET = new HashSet<>();
@@ -40,9 +41,10 @@ public class ProtostuffSerializer implements MySerializer {
     /**
      * 缓存对象及对象schema信息集合
      */
-    private static final Map<Class<?>, Schema<?>> CACHE_SCHEMA = Maps.newConcurrentMap();
-    
-    private static final ClassInstanceEnhancer psx = new ClassInstanceEnhancer();
+    private static final Map<Class<?>, Schema<?>> CACHE_SCHEMA = new HashMap<>(64);
+
+//        private static final ClassInstanceEnhancer instanceCreator = new ClassInstanceEnhancer();
+    private static final Objenesis instanceCreator = new ObjenesisStd(true);
 
     /**
      * 预定义一些Protostuff无法直接序列化/反序列化的对象
@@ -83,14 +85,11 @@ public class ProtostuffSerializer implements MySerializer {
      */
     @SuppressWarnings({"unchecked"})
     private static <T> Schema<T> getSchema(Class<T> cls) {
-        Schema<T> schema = (Schema<T>) CACHE_SCHEMA.get(cls);
+        Schema schema = CACHE_SCHEMA.get(cls);
         if (schema == null) {
-        	synchronized (CACHE_SCHEMA) {
-        		schema = RuntimeSchema.createFrom(cls);
-                if (schema != null) {
-                	CACHE_SCHEMA.put(cls, schema);
-                }
-			}
+            synchronized (CACHE_SCHEMA) {
+                schema = CACHE_SCHEMA.computeIfAbsent(cls, k -> RuntimeSchema.createFrom(k));
+            }
         }
         return schema;
     }
@@ -120,7 +119,7 @@ public class ProtostuffSerializer implements MySerializer {
 	public <T extends Serializable> T decode(byte[] buf, Class<T> cls) throws Exception {
 		try {
             if (!WRAPPER_SET.contains(cls)) {
-            	T message = psx.newInstance(cls);
+            	T message = instanceCreator.newInstance(cls);
                 Schema<T> schema = getSchema(cls);
                 ProtostuffIOUtil.mergeFrom(buf, message, schema);
                 return message;

@@ -24,7 +24,7 @@ public class CloseSessionRequest extends SessionRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), session);
+        return Objects.hash(getClass(), session, ranId);
     }
 
     @Override

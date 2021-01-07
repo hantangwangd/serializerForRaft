@@ -14,7 +14,7 @@ public class CommandRequest extends OperationRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), session, sequence);
+        return Objects.hash(getClass(), session, sequence, ranId);
     }
 
     @Override

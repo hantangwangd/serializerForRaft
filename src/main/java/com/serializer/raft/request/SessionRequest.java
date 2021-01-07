@@ -22,7 +22,7 @@ public class SessionRequest extends AbstractRaftRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), session);
+        return Objects.hash(getClass(), session, ranId);
     }
 
     @Override

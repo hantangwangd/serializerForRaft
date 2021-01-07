@@ -14,7 +14,7 @@ public class InitializeEntry extends TimestampedEntry {
     
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), term, timestamp);
+        return Objects.hash(getClass(), term, timestamp, ranId);
     }
 
     @Override

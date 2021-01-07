@@ -58,7 +58,7 @@ public class PollRequest extends AbstractRaftRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), term, candidate, lastLogIndex, lastLogTerm);
+        return Objects.hash(getClass(), term, candidate, lastLogIndex, lastLogTerm, ranId);
     }
 
     @Override

@@ -1,19 +1,14 @@
 package com.application;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.serializer.MySerializer;
 import com.serializer.raft.creator.RaftRequestCreator;
 import com.serializer.raft.creator.RaftResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator;
 import com.serializer.raft.creator.RequestResponseCreator.AppendRequestCreator;
 import com.serializer.raft.creator.RequestResponseCreator.AppendResponseCreator;
 import com.serializer.raft.creator.RequestResponseCreator.CloseSessionRequestCreator;
@@ -111,9 +106,9 @@ public class TestApplication {
 
 		calculateSingleThreadSpeed();
 
-//		calculateMultiThreadSpeed(8);
+		calculateMultiThreadSpeed(8);
 		
-//		calculateMultiThreadWithMultiSerializerSpeed(8);
+		calculateMultiThreadWithMultiSerializerSpeed(8);
 	}
 	
 	public static void calculateSizeAndVarify() throws Exception {
@@ -139,25 +134,25 @@ public class TestApplication {
 	public static void calculateSingleThreadSpeed() throws Exception {
 		calculateSingleThreadSpeed(5, s0, "JavaSerializer");
 		calculateSingleThreadSpeed(5, s1, "HessianSerializer");
-		calculateSingleThreadSpeed(5, s3, "KryoSerializer");
-		calculateSingleThreadSpeed(5, s4, "KryoSerializer_preRegister_class");
-		calculateSingleThreadSpeed(5, s5, "ProtostuffSerializer");
+		calculateSingleThreadSpeed(6, s3, "KryoSerializer");
+		calculateSingleThreadSpeed(6, s4, "KryoSerializer_preRegister_class");
+		calculateSingleThreadSpeed(6, s5, "ProtostuffSerializer");
 	}
 	
 	public static void calculateMultiThreadSpeed(int threadNumber) throws Exception {
 		calculateMultiThreadSpeed(5, threadNumber, s0, "JavaSerializer");
 		calculateMultiThreadSpeed(5, threadNumber, s1, "HessianSerializer");
-		calculateMultiThreadSpeed(5, threadNumber, s3, "KryoSerializer");
-		calculateMultiThreadSpeed(5, threadNumber, s4, "KryoSerializer_preRegister_class");
-		calculateMultiThreadSpeed(5, threadNumber, s5, "ProtostuffSerializer");
+		calculateMultiThreadSpeed(6, threadNumber, s3, "KryoSerializer");
+		calculateMultiThreadSpeed(6, threadNumber, s4, "KryoSerializer_preRegister_class");
+		calculateMultiThreadSpeed(6, threadNumber, s5, "ProtostuffSerializer");
 	}
 	
 	public static void calculateMultiThreadWithMultiSerializerSpeed(int threadNumber) throws Exception {
 		calculateMultiThreadWithMultiSerializerSpeed(5, threadNumber, s0, "JavaSerializer");
 		calculateMultiThreadWithMultiSerializerSpeed(5, threadNumber, s1, "HessianSerializer");
-		calculateMultiThreadWithMultiSerializerSpeed(5, threadNumber, s3, "KryoSerializer");
-		calculateMultiThreadWithMultiSerializerSpeed(5, threadNumber, s4, "KryoSerializer_preRegister_class");
-		calculateMultiThreadWithMultiSerializerSpeed(5, threadNumber, s5, "ProtostuffSerializer");
+		calculateMultiThreadWithMultiSerializerSpeed(6, threadNumber, s3, "KryoSerializer");
+		calculateMultiThreadWithMultiSerializerSpeed(6, threadNumber, s4, "KryoSerializer_preRegister_class");
+		calculateMultiThreadWithMultiSerializerSpeed(6, threadNumber, s5, "ProtostuffSerializer");
 	}
 
 	public static void calculateSizeAndVarify(TestSerializerCreator s, String mess) throws Exception {
@@ -248,59 +243,75 @@ public class TestApplication {
 	}
 
 	public static void calculateSingleThreadSpeed(int power, TestSerializerCreator s, String mess) throws Exception {
-		long serializeTime = 0L;
-		long deserializeTime = 0L;
-		long initTime = 0L;
+		AtomicLong serializeTime = new AtomicLong(0);
+		AtomicLong deserializeTime = new AtomicLong(0);
+		AtomicLong initTime = new AtomicLong(0);
 		MySerializer ts = s.create();
 		System.out.println("------" + mess);
-		RaftRequest[] requests = new RaftRequest[requestCreators.length];
-		RaftRequest[] nrequests = new RaftRequest[requestCreators.length];
-		byte[][] requestBss = new byte[requestCreators.length][];
-		RaftResponse[] responses = new RaftResponse[responseCreators.length];
-		RaftResponse[] nresponses = new RaftResponse[responseCreators.length];
-		byte[][] responseBss = new byte[responseCreators.length][];
-		long ss = System.currentTimeMillis();
+		RaftRequest[] requests = new RaftRequest[requestCreators.length * 100];
+		RaftRequest[] nrequests = new RaftRequest[requestCreators.length * 100];
+		byte[][] requestBss = new byte[requestCreators.length * 100][];
+		RaftResponse[] responses = new RaftResponse[responseCreators.length * 100];
+		RaftResponse[] nresponses = new RaftResponse[responseCreators.length * 100];
+		byte[][] responseBss = new byte[responseCreators.length * 100][];
 		for (int c = 0; c < power; c++) {
 			System.gc();
-			serializeTime = 0L;
-			deserializeTime = 0L;
-			initTime = 0L;
-			
-			for (int i = 0; i < Math.pow(10, c); i++) {
+			serializeTime.set(0);
+			deserializeTime.set(0);
+			initTime.set(0);
+			if (c > 0 && c <= 3) {
+				continue;
+			}
+			long ss = System.currentTimeMillis();
+
+			long s0 = System.currentTimeMillis();
+			for (int n = 0; n < requestCreators.length * 100; n++) {
+				requests[n] = requestCreators[n % requestCreators.length].create();
+			}
+			for (int n = 0; n < responseCreators.length * 100; n++) {
+				responses[n] = responseCreators[n % responseCreators.length].create();
+			}
+			long e0 = System.currentTimeMillis();
+			initTime.addAndGet(e0 - s0);
+
+			for (int i = 0; i < Math.pow(10, c - 2); i++) {
 				try {
-					long s0 = System.currentTimeMillis();
-					for (int n = 0; n < requestCreators.length; n++) {
-						requests[n] = requestCreators[n].create();
+
+					s0 = System.currentTimeMillis();
+					for (int n = 0; n < requestCreators.length * 100; n++) {
+						requests[n].random();
 					}
-					for (int n = 0; n < responseCreators.length; n++) {
-						responses[n] = responseCreators[n].create();
+					for (int n = 0; n < responseCreators.length * 100; n++) {
+						responses[n].random();
 					}
-					long e0 = System.currentTimeMillis();
-					initTime += e0 - s0;
+					e0 = System.currentTimeMillis();
+					initTime.addAndGet(e0 - s0);
 					
 					long s1 = System.currentTimeMillis();
-					for (int n = 0; n < requestCreators.length; n++) {
+					for (int n = 0; n < requestCreators.length * 100; n++) {
 						requestBss[n] = ts.encode(requests[n]);
 					}
-					for (int n = 0; n < responseCreators.length; n++) {
+					for (int n = 0; n < responseCreators.length * 100; n++) {
 						responseBss[n] = ts.encode(responses[n]);
 					}
 					long e1 = System.currentTimeMillis();
-					serializeTime += e1 - s1;
+					serializeTime.addAndGet(e1 - s1);
 
 					long s2 = System.currentTimeMillis();
-					for (int n = 0; n < requestCreators.length; n++) {
-						nrequests[n] = ts.decode(requestBss[n], requests[n].getClass());
+					for (int n = 0; n < requestCreators.length * 100; n++) {
+//						nrequests[n] = ts.decode(requestBss[n], requests[n].getClass());
+						ts.decode(requestBss[n], requests[n].getClass());
 					}
-					for (int n = 0; n < responseCreators.length; n++) {
-						nresponses[n] = ts.decode(responseBss[n], responses[n].getClass());
+					for (int n = 0; n < responseCreators.length * 100; n++) {
+//						nresponses[n] = ts.decode(responseBss[n], responses[n].getClass());
+						ts.decode(responseBss[n], responses[n].getClass());
 					}
 					long e2 = System.currentTimeMillis();
-					deserializeTime += e2 - s2;
+					deserializeTime.addAndGet(e2 - s2);
 					
-					if (!Arrays.deepEquals(nrequests, requests) || !Arrays.deepEquals(nresponses, responses)) {
-						throw new Exception("反序列化后不一致！！");
-					}
+//					if (!Arrays.deepEquals(nrequests, requests) || !Arrays.deepEquals(nresponses, responses)) {
+//						throw new Exception("反序列化后不一致！！");
+//					}
 					
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -308,15 +319,21 @@ public class TestApplication {
 					break;
 				}
 			}
-			if (c > 0) {
-				System.out.println(
-					Math.pow(10, c) + " serialize time: " + serializeTime 
-					+ ", deserialize time: " + deserializeTime
-					+ ", init time: " + initTime);
+			long ee = System.currentTimeMillis();
+//			System.out.println(
+//					Math.pow(10, c) + " serialize time: " + serializeTime
+//					+ ", deserialize time: " + deserializeTime
+//					+ ", init time: " + initTime
+//					+ ", total time: " + (ee - ss));
+
+			if (c != 0) {
+				int number = new Double(Math.pow(10, c)).intValue();
+				System.out.println(Math.pow(10, c)
+						+ " serialize speed: " + (number * 1000) / serializeTime.get()
+						+ ", deserialize time: " + (number * 1000) / deserializeTime.get()
+						+ ", init time " + initTime.get());
 			}
 		}
-		long ee = System.currentTimeMillis();
-//		System.out.println("------ total cost: " + (ee - ss));
 	}
 
 	public static void calculateMultiThreadSpeed(int power, int threadNumber, TestSerializerCreator s, String mess)
@@ -328,48 +345,63 @@ public class TestApplication {
 		AtomicLong initObjectCost = new AtomicLong(0);
 		System.out.println(mess + " start... ============================================");
 		for (int c = 0; c < power; c++) {
+			if (c > 0 && c <= 3) {
+				continue;
+			}
 			System.gc();
 			serializeTime.set(0);
 			deserializeTime.set(0);
 			initObjectCost.set(0);
 			List<Future<Boolean>> futures = new ArrayList<>();
 			long start = System.currentTimeMillis();
+			final CyclicBarrier cb = new CyclicBarrier(threadNumber);
 			for (int t = 0; t < threadNumber; t++) {
 				final int ic = c;
-				final int it = t;
 				futures.add(executorService.submit(() -> {
 					boolean flag = true;
-					RaftRequest[] requests = new RaftRequest[requestCreators.length];
-					byte[][] requestBss = new byte[requestCreators.length][];
-					RaftResponse[] responses = new RaftResponse[responseCreators.length];
-					byte[][] responseBss = new byte[responseCreators.length][];
+					RaftRequest[] requests = new RaftRequest[requestCreators.length * 100];
+					byte[][] requestBss = new byte[requestCreators.length * 100][];
+					RaftResponse[] responses = new RaftResponse[responseCreators.length * 100];
+					byte[][] responseBss = new byte[responseCreators.length * 100][];
 					long istart = System.currentTimeMillis();
-					for (int n = 0; n < requestCreators.length; n++) {
-						requests[n] = requestCreators[n].create();
+					for (int n = 0; n < requestCreators.length * 100; n++) {
+						requests[n] = requestCreators[n % requestCreators.length].create();
 					}
-					for (int n = 0; n < responseCreators.length; n++) {
-						responses[n] = responseCreators[n].create();
+					for (int n = 0; n < responseCreators.length * 100; n++) {
+						responses[n] = responseCreators[n % responseCreators.length].create();
 					}
 					long iend = System.currentTimeMillis();
 					initObjectCost.addAndGet(iend - istart);
-					for (int i = 0; i < Math.pow(10, ic); i++) {
+					cb.await();
+					for (int i = 0; i < Math.pow(10, ic - 2); i++) {
 						try {
+							istart = System.currentTimeMillis();
+							for (int n = 0; n < requestCreators.length * 100; n++) {
+								requests[n].random();
+							}
+							for (int n = 0; n < responseCreators.length * 100; n++) {
+								responses[n].random();
+							}
+							iend = System.currentTimeMillis();
+							initObjectCost.addAndGet(iend - istart);
 							long s1 = System.currentTimeMillis();
-							for (int n = 0; n < requestCreators.length; n++) {
+							for (int n = 0; n < requestCreators.length * 100; n++) {
 								requestBss[n] = ts.encode(requests[n]);
 							}
-							for (int n = 0; n < responseCreators.length; n++) {
+							for (int n = 0; n < responseCreators.length * 100; n++) {
 								responseBss[n] = ts.encode(responses[n]);
 							}
 							long e1 = System.currentTimeMillis();
 							serializeTime.addAndGet(e1 - s1);
 
 							long s2 = System.currentTimeMillis();
-							for (int n = 0; n < requestCreators.length; n++) {
-								RaftRequest nrequest = ts.decode(requestBss[n], requests[n].getClass());
+							for (int n = 0; n < requestCreators.length * 100; n++) {
+//								RaftRequest nrequest =
+										ts.decode(requestBss[n], requests[n].getClass());
 							}
-							for (int n = 0; n < responseCreators.length; n++) {
-								RaftResponse nresponse = ts.decode(responseBss[n], responses[n].getClass());
+							for (int n = 0; n < responseCreators.length * 100; n++) {
+//								RaftResponse nresponse =
+										ts.decode(responseBss[n], responses[n].getClass());
 							}
 							long e2 = System.currentTimeMillis();
 							deserializeTime.addAndGet(e2 - s2);
@@ -388,9 +420,19 @@ public class TestApplication {
 				future.get();
 			}
 			long end = System.currentTimeMillis();
-			System.out.println(Math.pow(10, c) + " serialize time: " + serializeTime.get() + ", deserialize time: "
-					+ deserializeTime.get() + " init objects time: " + initObjectCost.get() 
-					+ ", real time " + (end - start));
+			int number = new Double(Math.pow(10, c)).intValue();
+//			System.out.println(Math.pow(10, c)
+//					+ " serialize time: " + serializeTime.get()
+//					+ ", deserialize time: " + deserializeTime.get()
+//					+ " init objects time: " + initObjectCost.get()
+//					+ ", real time " + (end - start));
+
+			if (c != 0) {
+				System.out.println(Math.pow(10, c)
+						+ " serialize speed: " + (number * threadNumber * threadNumber) / (serializeTime.get()/1000)
+						+ ", deserialize speed: " + (number * threadNumber * threadNumber) / (deserializeTime.get()/1000)
+						+ ", real time " + (end - start));
+			}
 		}
 		executorService.shutdown();
 		executorService.awaitTermination(100, TimeUnit.SECONDS);
@@ -408,6 +450,9 @@ public class TestApplication {
 		AtomicLong initObjectCost = new AtomicLong(0);
 		System.out.println(mess + " start... ============================================");
 		for (int c = 0; c < power; c++) {
+			if (c > 0 && c <= 3) {
+				continue;
+			}
 			serializeTime.set(0);
 			deserializeTime.set(0);
 			initObjectCost.set(0);
@@ -418,39 +463,48 @@ public class TestApplication {
 				final int it = t;
 				futures.add(executorService.submit(() -> {
 					boolean flag = true;
-					RaftRequest[] requests = new RaftRequest[requestCreators.length];
-					byte[][] requestBss = new byte[requestCreators.length][];
-					RaftResponse[] responses = new RaftResponse[responseCreators.length];
-					byte[][] responseBss = new byte[responseCreators.length][];
+					RaftRequest[] requests = new RaftRequest[requestCreators.length * 100];
+					byte[][] requestBss = new byte[requestCreators.length * 100][];
+					RaftResponse[] responses = new RaftResponse[responseCreators.length * 100];
+					byte[][] responseBss = new byte[responseCreators.length * 100][];
 					
 					long istart = System.currentTimeMillis();
-					for (int n = 0; n < requestCreators.length; n++) {
-						requests[n] = requestCreators[n].create();
+					for (int n = 0; n < requestCreators.length * 100; n++) {
+						requests[n] = requestCreators[n % requestCreators.length].create();
 					}
-					for (int n = 0; n < responseCreators.length; n++) {
-						responses[n] = responseCreators[n].create();
+					for (int n = 0; n < responseCreators.length * 100; n++) {
+						responses[n] = responseCreators[n % responseCreators.length].create();
 					}
 					long iend = System.currentTimeMillis();
 					initObjectCost.addAndGet(iend - istart);
 					
-					for (int i = 0; i < Math.pow(10, ic); i++) {
+					for (int i = 0; i < Math.pow(10, ic - 2); i++) {
+						istart = System.currentTimeMillis();
+						for (int n = 0; n < requestCreators.length * 100; n++) {
+							requests[n].random();
+						}
+						for (int n = 0; n < responseCreators.length * 100; n++) {
+							responses[n].random();
+						}
+						iend = System.currentTimeMillis();
+						initObjectCost.addAndGet(iend - istart);
 						try {
 							long s1 = System.currentTimeMillis();
-							for (int n = 0; n < requestCreators.length; n++) {
+							for (int n = 0; n < requestCreators.length * 100; n++) {
 								requestBss[n] = tss[it].encode(requests[n]);
 							}
-							for (int n = 0; n < responseCreators.length; n++) {
+							for (int n = 0; n < responseCreators.length * 100; n++) {
 								responseBss[n] = tss[it].encode(responses[n]);
 							}
 							long e1 = System.currentTimeMillis();
 							serializeTime.addAndGet(e1 - s1);
 
 							long s2 = System.currentTimeMillis();
-							for (int n = 0; n < requestCreators.length; n++) {
-								RaftRequest nrequest = tss[it].decode(requestBss[n], requests[n].getClass());
+							for (int n = 0; n < requestCreators.length * 100; n++) {
+								tss[it].decode(requestBss[n], requests[n].getClass());
 							}
-							for (int n = 0; n < responseCreators.length; n++) {
-								RaftResponse nresponse = tss[it].decode(responseBss[n], responses[n].getClass());
+							for (int n = 0; n < responseCreators.length * 100; n++) {
+								tss[it].decode(responseBss[n], responses[n].getClass());
 							}
 							long e2 = System.currentTimeMillis();
 							deserializeTime.addAndGet(e2 - s2);
@@ -468,9 +522,17 @@ public class TestApplication {
 				future.get();
 			}
 			long end = System.currentTimeMillis();
-			System.out.println(Math.pow(10, c) + " serialize time: " + serializeTime.get() + ", deserialize time: "
-					+ deserializeTime.get() + " init objects time: " + initObjectCost.get() 
-					+ ", total time " + (end - start));
+
+			int number = new Double(Math.pow(10, c)).intValue();
+			if (c != 0) {
+//				System.out.println(Math.pow(10, c) + " serialize time: " + serializeTime.get() + ", deserialize time: "
+//						+ deserializeTime.get() + " init objects time: " + initObjectCost.get()
+//						+ ", total time " + (end - start));
+				System.out.println(Math.pow(10, c)
+						+ " serialize speed: " + (1000L * number * threadNumber * threadNumber) / serializeTime.get()
+						+ ", deserialize speed: " + (1000L * number * threadNumber * threadNumber) / deserializeTime.get()
+						+ ", real time " + (end - start));
+			}
 		}
 		executorService.shutdown();
 		executorService.awaitTermination(100, TimeUnit.SECONDS);

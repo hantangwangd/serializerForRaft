@@ -3,12 +3,16 @@ package com.serializer.raft.response;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
 import java.util.Objects;
+import java.util.Random;
 
 import com.serializer.raft.RaftError;
 
 public class AbstractRaftResponse implements RaftResponse {
 	protected final Status status;
     protected final RaftError error;
+
+    transient Random ran = new Random();
+    long ranId = ran.nextInt(10000);
 
     protected AbstractRaftResponse(Status status, RaftError error) {
         this.status = status;
@@ -25,9 +29,13 @@ public class AbstractRaftResponse implements RaftResponse {
         return error;
     }
 
+    public void random() {
+        ranId = ran.nextInt(10000);
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), status);
+        return Objects.hash(getClass(), status, ranId);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class ReconfigureRequest extends ConfigurationRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), index, member);
+        return Objects.hash(getClass(), index, member, ranId);
     }
 
     @Override

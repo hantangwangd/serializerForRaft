@@ -78,7 +78,7 @@ public class OperationResponse extends SessionResponse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), status, index, eventIndex, lastSequence, result);
+        return Objects.hash(getClass(), status, index, eventIndex, lastSequence, result, ranId);
     }
 
     @Override

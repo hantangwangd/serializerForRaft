@@ -91,7 +91,7 @@ public class OpenSessionRequest extends AbstractRaftRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), name, typeName, minTimeout, maxTimeout);
+        return Objects.hash(getClass(), name, typeName, minTimeout, maxTimeout, ranId);
     }
 
     @Override

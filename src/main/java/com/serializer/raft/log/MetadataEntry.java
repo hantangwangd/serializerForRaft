@@ -14,7 +14,7 @@ public class MetadataEntry extends SessionEntry {
     
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), term, timestamp, session);
+        return Objects.hash(getClass(), term, timestamp, session, ranId);
     }
 
     @Override

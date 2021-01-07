@@ -130,7 +130,7 @@ public class OpenSessionEntry extends TimestampedEntry {
     @Override
     public int hashCode() {
         return Objects.hash(getClass(), term, timestamp, memberId, serviceName, serviceType,
-        		serviceConfig, readConsistency, minTimeout, maxTimeout);
+        		serviceConfig, readConsistency, minTimeout, maxTimeout, ranId);
     }
 
     @Override

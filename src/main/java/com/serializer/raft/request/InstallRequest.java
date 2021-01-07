@@ -104,7 +104,7 @@ public class InstallRequest extends AbstractRaftRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClass(), term, leader, index, offset, complete, data);
+        return Objects.hash(getClass(), term, leader, index, offset, complete, data, ranId);
     }
 
     @Override
