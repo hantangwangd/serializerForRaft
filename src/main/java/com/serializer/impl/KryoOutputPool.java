@@ -1,6 +1,6 @@
 package com.serializer.impl;
 
-public class KryoOutputPool extends KryoIOPool<ByteArrayOutput> {
+public class KryoOutputPool extends SerializerIOPool<ByteArrayOutput> {
 
     private static final int MAX_BUFFER_SIZE = 768 * 1024;
     static final int MAX_POOLED_BUFFER_SIZE = 512 * 1024;

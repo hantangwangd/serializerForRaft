@@ -2,7 +2,7 @@ package com.serializer.impl;
 
 import com.esotericsoftware.kryo.io.Input;
 
-public class KryoInputPool extends KryoIOPool<Input> {
+public class KryoInputPool extends SerializerIOPool<Input> {
 
     static final int MAX_POOLED_BUFFER_SIZE = 512 * 1024;
 

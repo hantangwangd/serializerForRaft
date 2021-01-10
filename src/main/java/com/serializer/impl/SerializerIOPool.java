@@ -6,7 +6,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Function;
 
-public abstract class KryoIOPool<T> {
+public abstract class SerializerIOPool<T> {
 
     private final Queue<SoftReference<T>> queue = new ConcurrentLinkedQueue<>();
 

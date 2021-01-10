@@ -9,150 +9,70 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.serializer.MySerializer;
 import com.serializer.raft.creator.RaftRequestCreator;
 import com.serializer.raft.creator.RaftResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.AppendRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.AppendResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.CloseSessionRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.CloseSessionResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.CommandRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.CommandResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.ConfigureRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.ConfigureResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.InstallRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.InstallResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.JoinRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.JoinResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.KeepAliveRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.KeepAliveResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.LeaveRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.LeaveResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.MetadataRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.MetadataResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.OpenSessionRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.OpenSessionResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.PollRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.PollResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.PublishRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.QueryRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.QueryResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.ReconfigureRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.ReconfigureResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.ResetRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.TransferRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.TransferResponseCreator;
-import com.serializer.raft.creator.RequestResponseCreator.VoteRequestCreator;
-import com.serializer.raft.creator.RequestResponseCreator.VoteResponseCreator;
 import com.serializer.raft.creator.TestSerializerCreator;
-import com.serializer.raft.creator.TestSerializerCreatorFactory;
-import com.serializer.raft.creator.TestSerializerCreatorFactory.HessianSerializerCreator;
-import com.serializer.raft.creator.TestSerializerCreatorFactory.JavaSerializerCreator;
-import com.serializer.raft.creator.TestSerializerCreatorFactory.KryoSerializerCreator;
-import com.serializer.raft.creator.TestSerializerCreatorFactory.ProtostuffSerializerCreator;
-import com.serializer.raft.creator.TestSerializerCreatorFactory.kryoSerializerNotWriteClassCreator;
 import com.serializer.raft.request.RaftRequest;
 import com.serializer.raft.response.RaftResponse;
 import com.serializer.utils.MemoryMeasureTool;
 
-public class TestApplication {
-	static OpenSessionRequestCreator osrequest = OpenSessionRequestCreator.INSTANCE;
-	static AppendRequestCreator arequest = AppendRequestCreator.INSTANCE;
-	static CloseSessionRequestCreator csrequest = CloseSessionRequestCreator.INSTANCE;
-	static CommandRequestCreator crequest = CommandRequestCreator.INSTANCE;
-	static ConfigureRequestCreator cfrequest = ConfigureRequestCreator.INSTANCE;
-	static InstallRequestCreator irequest = InstallRequestCreator.INSTANCE;
-	static JoinRequestCreator jrequest = JoinRequestCreator.INSTANCE;
-	static KeepAliveRequestCreator karequest = KeepAliveRequestCreator.INSTANCE;
-	static LeaveRequestCreator lrequest = LeaveRequestCreator.INSTANCE;
-	static MetadataRequestCreator mrequest = MetadataRequestCreator.INSTANCE;
-	static PollRequestCreator prequest = PollRequestCreator.INSTANCE;
-	static PublishRequestCreator plrequest = PublishRequestCreator.INSTANCE;
-	static QueryRequestCreator qrequest = QueryRequestCreator.INSTANCE;
-	static ReconfigureRequestCreator rcrequest = ReconfigureRequestCreator.INSTANCE;
-	static ResetRequestCreator resrequest = ResetRequestCreator.INSTANCE;
-	static TransferRequestCreator trequest = TransferRequestCreator.INSTANCE;
-	static VoteRequestCreator vrequest = VoteRequestCreator.INSTANCE;
-	static RaftRequestCreator[] requestCreators = new RaftRequestCreator[] { osrequest, arequest, csrequest, crequest,
-			cfrequest, irequest, jrequest, karequest, lrequest, mrequest, prequest, plrequest, qrequest, rcrequest,
-			resrequest, trequest, vrequest };
-	
-	static OpenSessionResponseCreator osresponse = OpenSessionResponseCreator.INSTANCE;
-	static AppendResponseCreator aresponse = AppendResponseCreator.INSTANCE;
-	static CloseSessionResponseCreator csresponse = CloseSessionResponseCreator.INSTANCE;
-	static CommandResponseCreator cresponce = CommandResponseCreator.INSTANCE;
-	static ConfigureResponseCreator cfresponse = ConfigureResponseCreator.INSTANCE;
-	static InstallResponseCreator iresponse = InstallResponseCreator.INSTANCE;
-	static JoinResponseCreator jresponse = JoinResponseCreator.INSTANCE;
-	static KeepAliveResponseCreator karesponse = KeepAliveResponseCreator.INSTANCE;
-	static LeaveResponseCreator lresponse = LeaveResponseCreator.INSTANCE;
-	static MetadataResponseCreator mresponse = MetadataResponseCreator.INSTANCE;
-	static PollResponseCreator presponse = PollResponseCreator.INSTANCE;
-	static QueryResponseCreator qresponse = QueryResponseCreator.INSTANCE;
-	static ReconfigureResponseCreator rcresponse = ReconfigureResponseCreator.INSTANCE;
-	static TransferResponseCreator tresponse = TransferResponseCreator.INSTANCE;
-	static VoteResponseCreator vresponse = VoteResponseCreator.INSTANCE;
-	static RaftResponseCreator[] responseCreators = new RaftResponseCreator[] {osresponse, aresponse, csresponse,
-			cresponce, cfresponse, iresponse, jresponse, karesponse, lresponse, mresponse, presponse,
-			qresponse, rcresponse, tresponse, vresponse};
+import static com.application.TestUtils.*;
 
-	static JavaSerializerCreator s0 = JavaSerializerCreator.INSTANCE;
-	static HessianSerializerCreator s1 = HessianSerializerCreator.INSTANCE;
-	static KryoSerializerCreator s3 = KryoSerializerCreator.INSTANCE;
-	static kryoSerializerNotWriteClassCreator s4 = kryoSerializerNotWriteClassCreator.INSTANCE;
-	static ProtostuffSerializerCreator s5 = ProtostuffSerializerCreator.INSTANCE;
+public class TestApplication {
+
 	
 	public static void main(String[] args) throws Exception {
 		calculateSizeAndVarify();
 		
-		varifyMultiThread();
+//		varifyMultiThread();
 
-		calculateSingleThreadSpeed();
+//		calculateSingleThreadSpeed();
 
 		calculateMultiThreadSpeed(8);
 		
-		calculateMultiThreadWithMultiSerializerSpeed(8);
+//		calculateMultiThreadWithMultiSerializerSpeed(8);
 	}
 	
 	public static void calculateSizeAndVarify() throws Exception {
 		System.out.println("-----calculateSizeAndVarify------");
-		calculateSizeAndVarify(s0, "JavaSerializer");
-		calculateSizeAndVarify(s1, "HessianSerializer");
-		calculateSizeAndVarify(s3, "KryoSerializer");
-		calculateSizeAndVarify(s4, "KryoSerializer_preRegister_class");
-		calculateSizeAndVarify(s5, "ProtostuffSerializer");
+		calculateSizeAndVarify(javaSerializerCreator, "JavaSerializer");
+		calculateSizeAndVarify(hessianSerializerCreator, "HessianSerializer");
+		calculateSizeAndVarify(kryoNotPreRegisterClassCreator, "KryoSerializer");
+		calculateSizeAndVarify(kryoPreRegisterClassCreator, "KryoSerializer_preRegister_class");
+		calculateSizeAndVarify(protostuffSerializerCreator, "ProtostuffSerializer");
 		System.out.println();
 	}
 	
 	public static void varifyMultiThread() throws Exception {
 		System.out.println("-----varifyMultiThread support------");
-		varifyMultiThreadSupport(s0, "JavaSerializer");
-		varifyMultiThreadSupport(s1, "HessianSerializer");
-		varifyMultiThreadSupport(s3, "KryoSerializer");
-		varifyMultiThreadSupport(s4, "KryoSerializer_preRegister_class");
-		varifyMultiThreadSupport(s5, "ProtostuffSerializer");
+		varifyMultiThreadSupport(javaSerializerCreator, "JavaSerializer");
+		varifyMultiThreadSupport(hessianSerializerCreator, "HessianSerializer");
+		varifyMultiThreadSupport(kryoNotPreRegisterClassCreator, "KryoSerializer");
+		varifyMultiThreadSupport(kryoPreRegisterClassCreator, "KryoSerializer_preRegister_class");
+		varifyMultiThreadSupport(protostuffSerializerCreator, "ProtostuffSerializer");
 		System.out.println();
 	}
 	
 	public static void calculateSingleThreadSpeed() throws Exception {
-		calculateSingleThreadSpeed(5, s0, "JavaSerializer");
-		calculateSingleThreadSpeed(5, s1, "HessianSerializer");
-		calculateSingleThreadSpeed(6, s3, "KryoSerializer");
-		calculateSingleThreadSpeed(6, s4, "KryoSerializer_preRegister_class");
-		calculateSingleThreadSpeed(6, s5, "ProtostuffSerializer");
+		calculateSingleThreadSpeed(5, javaSerializerCreator, "JavaSerializer");
+		calculateSingleThreadSpeed(5, hessianSerializerCreator, "HessianSerializer");
+		calculateSingleThreadSpeed(6, kryoNotPreRegisterClassCreator, "KryoSerializer");
+		calculateSingleThreadSpeed(6, kryoPreRegisterClassCreator, "KryoSerializer_preRegister_class");
+		calculateSingleThreadSpeed(6, protostuffSerializerCreator, "ProtostuffSerializer");
 	}
 	
 	public static void calculateMultiThreadSpeed(int threadNumber) throws Exception {
-		calculateMultiThreadSpeed(5, threadNumber, s0, "JavaSerializer");
-		calculateMultiThreadSpeed(5, threadNumber, s1, "HessianSerializer");
-		calculateMultiThreadSpeed(6, threadNumber, s3, "KryoSerializer");
-		calculateMultiThreadSpeed(6, threadNumber, s4, "KryoSerializer_preRegister_class");
-		calculateMultiThreadSpeed(6, threadNumber, s5, "ProtostuffSerializer");
+		calculateMultiThreadSpeed(5, threadNumber, javaSerializerCreator, "JavaSerializer");
+		calculateMultiThreadSpeed(5, threadNumber, hessianSerializerCreator, "HessianSerializer");
+		calculateMultiThreadSpeed(6, threadNumber, kryoNotPreRegisterClassCreator, "KryoSerializer");
+		calculateMultiThreadSpeed(6, threadNumber, kryoPreRegisterClassCreator, "KryoSerializer_preRegister_class");
+		calculateMultiThreadSpeed(6, threadNumber, protostuffSerializerCreator, "ProtostuffSerializer");
 	}
 	
 	public static void calculateMultiThreadWithMultiSerializerSpeed(int threadNumber) throws Exception {
-		calculateMultiThreadWithMultiSerializerSpeed(5, threadNumber, s0, "JavaSerializer");
-		calculateMultiThreadWithMultiSerializerSpeed(5, threadNumber, s1, "HessianSerializer");
-		calculateMultiThreadWithMultiSerializerSpeed(6, threadNumber, s3, "KryoSerializer");
-		calculateMultiThreadWithMultiSerializerSpeed(6, threadNumber, s4, "KryoSerializer_preRegister_class");
-		calculateMultiThreadWithMultiSerializerSpeed(6, threadNumber, s5, "ProtostuffSerializer");
+		calculateMultiThreadWithMultiSerializerSpeed(5, threadNumber, javaSerializerCreator, "JavaSerializer");
+		calculateMultiThreadWithMultiSerializerSpeed(5, threadNumber, hessianSerializerCreator, "HessianSerializer");
+		calculateMultiThreadWithMultiSerializerSpeed(6, threadNumber, kryoNotPreRegisterClassCreator, "KryoSerializer");
+		calculateMultiThreadWithMultiSerializerSpeed(6, threadNumber, kryoPreRegisterClassCreator, "KryoSerializer_preRegister_class");
+		calculateMultiThreadWithMultiSerializerSpeed(6, threadNumber, protostuffSerializerCreator, "ProtostuffSerializer");
 	}
 
 	public static void calculateSizeAndVarify(TestSerializerCreator s, String mess) throws Exception {

@@ -18,9 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.serializer.MySerializer;
 import com.serializer.utils.ClassInstanceEnhancer;
 
-import io.protostuff.LinkedBuffer;
-import io.protostuff.ProtostuffIOUtil;
-import io.protostuff.Schema;
+import io.protostuff.*;
 import io.protostuff.runtime.RuntimeSchema;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
@@ -45,6 +43,11 @@ public class ProtostuffSerializer implements MySerializer {
 
 //        private static final ClassInstanceEnhancer instanceCreator = new ClassInstanceEnhancer();
     private static final Objenesis instanceCreator = new ObjenesisStd(true);
+
+    /**
+     * 构建LinkedBuffer资源管理池
+     * */
+    private static final ProtostuffLinkedBufferPool linkedBufferPool = new ProtostuffLinkedBufferPool();
 
     /**
      * 预定义一些Protostuff无法直接序列化/反序列化的对象
@@ -97,22 +100,7 @@ public class ProtostuffSerializer implements MySerializer {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Serializable> byte[] encode(T obj) throws Exception {
-		LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
-		Class<T> clazz = (Class<T>) obj.getClass();
-        try {
-            Object serializeObject = obj;
-            Schema schema = WRAPPER_SCHEMA;
-            if (!WRAPPER_SET.contains(clazz)) {
-                schema = getSchema(clazz);
-            } else {
-                serializeObject = SerializeDeserializeWrapper.builder(obj);
-            }
-            return ProtostuffIOUtil.toByteArray(serializeObject, schema, buffer);
-        } catch (Exception e) {
-            throw new IllegalStateException("序列化对象异常 [" + obj + "]", e);
-        } finally {
-            buffer.clear();
-        }
+        return encodeWithoutPool(obj);
 	}
 
 	@Override
@@ -132,4 +120,41 @@ public class ProtostuffSerializer implements MySerializer {
             throw new IllegalStateException("反序列化对象异常 [" + cls.getName() + "]", e);
         }
 	}
+
+    private <T extends Serializable> byte[] encodeWithPool(T obj) throws Exception {
+        return linkedBufferPool.run(buffer -> {
+            Class<T> clazz = (Class<T>) obj.getClass();
+            try {
+                Object serializeObject = obj;
+                Schema schema = WRAPPER_SCHEMA;
+                if (!WRAPPER_SET.contains(clazz)) {
+                    schema = getSchema(clazz);
+                } else {
+                    serializeObject = SerializeDeserializeWrapper.builder(obj);
+                }
+                return ProtostuffIOUtil.toByteArray(serializeObject, schema, buffer);
+            } catch (Exception e) {
+                throw new IllegalStateException("序列化对象异常 [" + obj + "]", e);
+            }
+        }, LinkedBuffer.DEFAULT_BUFFER_SIZE);
+    }
+
+    private <T extends Serializable> byte[] encodeWithoutPool(T obj) throws Exception {
+        LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
+        Class<T> clazz = (Class<T>) obj.getClass();
+        try {
+            Object serializeObject = obj;
+            Schema schema = WRAPPER_SCHEMA;
+            if (!WRAPPER_SET.contains(clazz)) {
+                schema = getSchema(clazz);
+            } else {
+                serializeObject = SerializeDeserializeWrapper.builder(obj);
+            }
+            return ProtostuffIOUtil.toByteArray(serializeObject, schema, buffer);
+        } catch (Exception e) {
+            throw new IllegalStateException("序列化对象异常 [" + obj + "]", e);
+        } finally {
+            buffer.clear();
+        }
+    }
 }
