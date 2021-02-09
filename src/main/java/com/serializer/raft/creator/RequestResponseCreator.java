@@ -287,7 +287,7 @@ public class RequestResponseCreator {
 	}
 	
 	private static InstallRequest createInstallRequest() {
-		byte[] bs = new byte[32 * 1024];
+		byte[] bs = new byte[31500];
 		Arrays.fill(bs, (byte)0);
 		InstallRequest request = new InstallRequest(ran.nextInt(100000), MemberId.from(UUID.randomUUID().toString()), 
 				ran.nextInt(100000), System.currentTimeMillis(), ran.nextInt(100000), ran.nextInt(100000), bs , true);

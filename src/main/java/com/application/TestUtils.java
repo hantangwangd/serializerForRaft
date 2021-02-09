@@ -23,7 +23,7 @@ public class TestUtils {
     static RequestResponseCreator.ResetRequestCreator resrequest = RequestResponseCreator.ResetRequestCreator.INSTANCE;
     static RequestResponseCreator.TransferRequestCreator trequest = RequestResponseCreator.TransferRequestCreator.INSTANCE;
     static RequestResponseCreator.VoteRequestCreator vrequest = RequestResponseCreator.VoteRequestCreator.INSTANCE;
-    static RaftRequestCreator[] requestCreators = new RaftRequestCreator[] { osrequest, arequest, csrequest, crequest,
+    public static RaftRequestCreator[] requestCreators = new RaftRequestCreator[] { osrequest, arequest, csrequest, crequest,
             cfrequest, irequest, jrequest, karequest, lrequest, mrequest, prequest, plrequest, qrequest, rcrequest,
             resrequest, trequest, vrequest };
 
@@ -42,13 +42,13 @@ public class TestUtils {
     static RequestResponseCreator.ReconfigureResponseCreator rcresponse = RequestResponseCreator.ReconfigureResponseCreator.INSTANCE;
     static RequestResponseCreator.TransferResponseCreator tresponse = RequestResponseCreator.TransferResponseCreator.INSTANCE;
     static RequestResponseCreator.VoteResponseCreator vresponse = RequestResponseCreator.VoteResponseCreator.INSTANCE;
-    static RaftResponseCreator[] responseCreators = new RaftResponseCreator[] {osresponse, aresponse, csresponse,
+    public static RaftResponseCreator[] responseCreators = new RaftResponseCreator[] {osresponse, aresponse, csresponse,
             cresponce, cfresponse, iresponse, jresponse, karesponse, lresponse, mresponse, presponse,
             qresponse, rcresponse, tresponse, vresponse};
 
-    static TestSerializerCreatorFactory.JavaSerializerCreator javaSerializerCreator = TestSerializerCreatorFactory.JavaSerializerCreator.INSTANCE;
-    static TestSerializerCreatorFactory.HessianSerializerCreator hessianSerializerCreator = TestSerializerCreatorFactory.HessianSerializerCreator.INSTANCE;
-    static TestSerializerCreatorFactory.KryoSerializerCreator kryoNotPreRegisterClassCreator = TestSerializerCreatorFactory.KryoSerializerCreator.INSTANCE;
-    static TestSerializerCreatorFactory.kryoSerializerNotWriteClassCreator kryoPreRegisterClassCreator = TestSerializerCreatorFactory.kryoSerializerNotWriteClassCreator.INSTANCE;
-    static TestSerializerCreatorFactory.ProtostuffSerializerCreator protostuffSerializerCreator = TestSerializerCreatorFactory.ProtostuffSerializerCreator.INSTANCE;
+    public static TestSerializerCreatorFactory.JavaSerializerCreator javaSerializerCreator = TestSerializerCreatorFactory.JavaSerializerCreator.INSTANCE;
+    public static TestSerializerCreatorFactory.HessianSerializerCreator hessianSerializerCreator = TestSerializerCreatorFactory.HessianSerializerCreator.INSTANCE;
+    public static TestSerializerCreatorFactory.KryoSerializerCreator kryoNotPreRegisterClassCreator = TestSerializerCreatorFactory.KryoSerializerCreator.INSTANCE;
+    public static TestSerializerCreatorFactory.kryoSerializerNotWriteClassCreator kryoPreRegisterClassCreator = TestSerializerCreatorFactory.kryoSerializerNotWriteClassCreator.INSTANCE;
+    public static TestSerializerCreatorFactory.ProtostuffSerializerCreator protostuffSerializerCreator = TestSerializerCreatorFactory.ProtostuffSerializerCreator.INSTANCE;
 }
