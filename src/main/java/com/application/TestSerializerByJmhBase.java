@@ -63,7 +63,7 @@ public class TestSerializerByJmhBase {
                 serializeRes.get()[n] =
                         serializer.encode(requests[n]);
             }
-            for (int n = 0; n > responses.length; n++) {
+            for (int n = 0; n < responses.length; n++) {
                 serializeRes.get()[requests.length + n] =
                         serializer.encode(responses[n]);
             }
@@ -79,7 +79,7 @@ public class TestSerializerByJmhBase {
                 deserializeRes.get()[n] =
                         serializer.decode(requestBss[n], requests[n].getClass());
             }
-            for (int n = 0; n > responseBss.length; n++) {
+            for (int n = 0; n < responseBss.length; n++) {
                 deserializeRes.get()[requests.length + n] =
                         serializer.decode(responseBss[n], responses[n].getClass());
             }
@@ -95,7 +95,7 @@ public class TestSerializerByJmhBase {
                 serializeRes.get()[n] =
                         serializer.encode(requests[n]);
             }
-            for (int n = 0; n > responses.length; n++) {
+            for (int n = 0; n < responses.length; n++) {
                 serializeRes.get()[requests.length + n] =
                         serializer.encode(responses[n]);
             }
@@ -111,7 +111,7 @@ public class TestSerializerByJmhBase {
                 deserializeRes.get()[n] =
                         serializer.decode(requestBss[n], requests[n].getClass());
             }
-            for (int n = 0; n > responseBss.length; n++) {
+            for (int n = 0; n < responseBss.length; n++) {
                 deserializeRes.get()[requests.length + n] =
                         serializer.decode(responseBss[n], responses[n].getClass());
             }
