@@ -19,23 +19,11 @@ import static com.application.TestUtils.responseCreators;
 @Fork(2)
 @State(Scope.Thread)
 public class TestSerializerByJmhBase {
+
     static RaftRequest[] requests = new RaftRequest[requestCreators.length];
     static RaftResponse[] responses = new RaftResponse[responseCreators.length];
     static byte[][] requestBss = new byte[requestCreators.length][];
     static byte[][] responseBss = new byte[responseCreators.length][];
-
-    static ThreadLocal<byte[][]> serializeRes = new ThreadLocal<byte[][]>() {
-        @Override
-        protected byte[][] initialValue() {
-            return new byte[requestCreators.length + responseCreators.length][];
-        }
-    };
-    static ThreadLocal<Object[]> deserializeRes = new ThreadLocal<Object[]>() {
-        @Override
-        protected Object[] initialValue() {
-            return new Object[requestCreators.length + responseCreators.length];
-        }
-    };
 
     @Param(value = {"1", "1"})
     private int length;
@@ -56,67 +44,51 @@ public class TestSerializerByJmhBase {
     }
 
     @Benchmark
-    public void testMultiThreadSharedSingletonSerialize(Blackhole blackhole) throws Exception {
+    public void testMultiThreadSharedSingletonSerialize(Blackhole bh) throws Exception {
         MySerializer serializer = getSingletonSerializer();
-        for (int i = 0; i < length; i++) {
-            for (int n = 0; n < requests.length; n++) {
-                serializeRes.get()[n] =
-                        serializer.encode(requests[n]);
-            }
-            for (int n = 0; n < responses.length; n++) {
-                serializeRes.get()[requests.length + n] =
-                        serializer.encode(responses[n]);
-            }
+        for (int n = 0; n < requests.length; n++) {
+            bh.consume(serializer.encode(requests[n]));
         }
-        blackhole.consume(serializeRes.get());
+        for (int n = 0; n < responses.length; n++) {
+            bh.consume(serializer.encode(responses[n]));
+        }
+        bh.consume(length);
     }
 
     @Benchmark
-    public void testMultiThreadSharedSingletonDeserialize(Blackhole blackhole) throws Exception {
+    public void testMultiThreadSharedSingletonDeserialize(Blackhole bh) throws Exception {
         MySerializer serializer = getSingletonSerializer();
-        for (int i = 0; i < length; i++) {
-            for (int n = 0; n < requestBss.length; n++) {
-                deserializeRes.get()[n] =
-                        serializer.decode(requestBss[n], requests[n].getClass());
-            }
-            for (int n = 0; n < responseBss.length; n++) {
-                deserializeRes.get()[requests.length + n] =
-                        serializer.decode(responseBss[n], responses[n].getClass());
-            }
+        for (int n = 0; n < requestBss.length; n++) {
+            bh.consume(serializer.decode(requestBss[n], requests[n].getClass()));
         }
-        blackhole.consume(deserializeRes.get());
+        for (int n = 0; n < responseBss.length; n++) {
+            bh.consume(serializer.decode(responseBss[n], responses[n].getClass()));
+        }
+        bh.consume(length);
     }
 
     @Benchmark
-    public void testMultiThreadMultitonSerialize(Blackhole blackhole) throws Exception {
+    public void testMultiThreadMultitonSerialize(Blackhole bh) throws Exception {
         MySerializer serializer = getMultitonSerializer();
-        for (int i = 0; i < length; i++) {
-            for (int n = 0; n < requests.length; n++) {
-                serializeRes.get()[n] =
-                        serializer.encode(requests[n]);
-            }
-            for (int n = 0; n < responses.length; n++) {
-                serializeRes.get()[requests.length + n] =
-                        serializer.encode(responses[n]);
-            }
+        for (int n = 0; n < requests.length; n++) {
+            bh.consume(serializer.encode(requests[n]));
         }
-        blackhole.consume(serializeRes.get());
+        for (int n = 0; n < responses.length; n++) {
+            bh.consume(serializer.encode(responses[n]));
+        }
+        bh.consume(length);
     }
 
     @Benchmark
-    public void testMultiThreadMultitonDeserialize(Blackhole blackhole) throws Exception {
+    public void testMultiThreadMultitonDeserialize(Blackhole bh) throws Exception {
         MySerializer serializer = getMultitonSerializer();
-        for (int i = 0; i < length; i++) {
-            for (int n = 0; n < requestBss.length; n++) {
-                deserializeRes.get()[n] =
-                        serializer.decode(requestBss[n], requests[n].getClass());
-            }
-            for (int n = 0; n < responseBss.length; n++) {
-                deserializeRes.get()[requests.length + n] =
-                        serializer.decode(responseBss[n], responses[n].getClass());
-            }
+        for (int n = 0; n < requestBss.length; n++) {
+            bh.consume(serializer.decode(requestBss[n], requests[n].getClass()));
         }
-        blackhole.consume(deserializeRes.get());
+        for (int n = 0; n < responseBss.length; n++) {
+            bh.consume(serializer.decode(responseBss[n], responses[n].getClass()));
+        }
+        bh.consume(length);
     }
 
     protected MySerializer getMultitonSerializer() {
